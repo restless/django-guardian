@@ -351,8 +351,10 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
         .values_list('object_pk', 'permission__codename')
     data = list(user_obj_perms)
     if use_groups:
+        group_kwargs = {'group__%s' % User._meta.\
+                get_field_by_name('groups')[0].related_query_name(): user}
         groups_obj_perms = GroupObjectPermission.objects\
-            .filter(group__user=user)\
+            .filter(**group_kwargs)\
             .filter(permission__content_type=ctype)\
             .filter(permission__codename__in=codenames)\
             .values_list('object_pk', 'permission__codename')
