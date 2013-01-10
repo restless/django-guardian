@@ -11,7 +11,7 @@ from guardian.compat import Permission
 from guardian.compat import User
 from guardian.managers import GroupObjectPermissionManager
 from guardian.managers import UserObjectPermissionManager
-from guardian.utils import get_anonymous_user
+from guardian.utils import get_anonymous_user, get_groups_backref_name
 
 
 __all__ = ['BaseObjectPermission', 'UserObjectPermission',
@@ -73,6 +73,7 @@ class GroupObjectPermission(BaseObjectPermission):
 
 # Prototype User and Group methods
 setattr(User, 'get_anonymous', staticmethod(lambda: get_anonymous_user()))
+setattr(User, 'groups_backref_name', get_groups_backref_name())
 setattr(User, 'add_obj_perm',
     lambda self, perm, obj: UserObjectPermission.objects.assign(perm, self, obj))
 setattr(User, 'del_obj_perm',

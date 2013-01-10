@@ -2,7 +2,7 @@ from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, F
-
+from guardian.compat import User
 from guardian.utils import get_identity
 from guardian.models import Permission
 
@@ -65,15 +65,19 @@ class ObjectPermissionChecker(object):
                     .filter(content_type=ctype)
                     .values_list("codename")))
             elif self.user:
+                group_kwargs = {
+                    "groupobjectpermission__content_type": F('content_type'),
+                    "groupobjectpermission__group__%s" % \
+                            User.groups_backref_name: self.user,
+                    "groupobjectpermission__object_pk": obj.pk
+                    }
                 perms = list(set(chain(*Permission.objects
                     .filter(content_type=ctype)
                     .filter(
                         Q(userobjectpermission__content_type=F('content_type'),
                             userobjectpermission__user=self.user,
                             userobjectpermission__object_pk=obj.pk) |
-                        Q(groupobjectpermission__content_type=F('content_type'),
-                            groupobjectpermission__group__user=self.user,
-                            groupobjectpermission__object_pk=obj.pk))
+                        Q(**group_kwargs))
                     .values_list("codename"))))
             else:
                 perms = list(set(chain(*Permission.objects

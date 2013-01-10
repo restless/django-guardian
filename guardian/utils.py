@@ -34,6 +34,13 @@ def get_anonymous_user():
     return User.objects.get(id=guardian_settings.ANONYMOUS_USER_ID)
 
 
+def get_groups_backref_name():
+    """
+    Returns backreference name from Group to user model.
+    """
+    return User._meta.get_field_by_name('groups')[0].related_query_name()
+
+
 def get_identity(identity):
     """
     Returns (user_obj, None) or (None, group_obj) tuple depending on what is
